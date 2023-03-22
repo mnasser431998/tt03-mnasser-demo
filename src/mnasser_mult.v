@@ -20,6 +20,7 @@ module mnasser_mult(
     end
   end
 
-  assign io_out = count_reg;
+
+  seg7 seg7(.counter(count_reg[3:0]), .segments(io_out[6:0]));
 
 endmodule
