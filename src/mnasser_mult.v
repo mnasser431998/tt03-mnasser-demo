@@ -9,7 +9,7 @@ module mnasser_mult(
   wire data = io_in[7:2];
   reg [7:0] count_reg;
 
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if (reset) begin
         count_reg <= {2'b00,data};
     end
