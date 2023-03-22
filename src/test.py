@@ -12,6 +12,7 @@ async def test_7seg(dut):
     cocotb.start_soon(clock.start())
 
     dut._log.info("reset")
+    dut.data.value = 0
     dut.rst.value = 1
     await ClockCycles(dut.clk, 10)
     dut.rst.value = 0
