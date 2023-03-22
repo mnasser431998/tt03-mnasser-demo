@@ -10,6 +10,7 @@ module tb (
     // testbench is controlled by test.py
     input clk,
     input rst,
+    input [5:0] data,
     output [6:0] segments
    );
 
@@ -21,12 +22,12 @@ module tb (
     end
 
     // wire up the inputs and outputs
-    wire [7:0] inputs = {6'b0, rst, clk};
+    wire [7:0] inputs = {data, rst, clk};
     wire [7:0] outputs;
     assign segments = outputs[6:0];
 
     // instantiate the DUT
-    seven_segment_seconds seven_segment_seconds(
+    mnasser_mult mnasser_mult(
         `ifdef GL_TEST
             .vccd1( 1'b1),
             .vssd1( 1'b0),
