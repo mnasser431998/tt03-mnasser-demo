@@ -6,11 +6,10 @@ project:
 # If using an HDL, set wokwi_id as 0 and uncomment and list your source files here. 
 # Source files must be in ./src and you must list each source file separately
   source_files:        
-    - mnasser_mult.v
-    - decoder.v
+    - my_design.v
     #- counter.v
     
-  top_module:  "mnasser_mult"      # put the name of your top module here, make it unique by prepending your github username
+  top_module:  "my_design"      # put the name of your top module here, make it unique by prepending your github username
 
 # Keep a track of the submission yaml
 yaml_version: 3.0
