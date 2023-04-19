@@ -15,11 +15,11 @@ async def test_dec_1(dut):
 
     cocotb.start_soon(Clock(dut.clk, 1000, units='ns').start())
 
-    dut.reset.value = 1
+    dut.reset.value = 0
     dut.valid.value = 0
     dut.toggle.value = 0
     await ClockCycles(dut.clk, 500, True)
-    dut.reset.value = 0
+    dut.reset.value = 1
 
     dut.din.value = B >> 4
     dut.valid.value = 1

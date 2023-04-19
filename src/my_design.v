@@ -9,7 +9,7 @@ module my_design(
 
 
   wire clk = io_in[4];
-  wire reset = io_in[5];
+  wire reset_n = io_in[5];
   wire [3:0] my_data = io_in[3:0];
   wire valid = io_in[6];
   wire toggle = io_in[7];
@@ -22,7 +22,7 @@ module my_design(
 
   debouncer my_deb(
               .clk(clk),
-              .reset(reset),
+              .reset_n(reset_n),
               .valid(valid),
               .valid_db(valid_db)
             );
@@ -32,7 +32,7 @@ module my_design(
 
   edge_detector my_edge(
                   .clk(clk),
-                  .reset(reset),
+                  .reset_n(reset_n),
                   .valid_db(valid_db),
                   .valid_pulse(valid_pulse)
                 );
@@ -45,9 +45,9 @@ module my_design(
     mult_in_reg = 'h0;
   end
 
-  always @(posedge clk)
+  always @(posedge clk or negedge reset_n)
   begin
-    if (reset)
+    if (!reset_n)
     begin
       mult_in_reg <= 'h0;
     end
@@ -70,7 +70,7 @@ endmodule
 
 module edge_detector ( input valid_db,
                          input clk,
-                         input reset,
+                         input reset_n,
                          output valid_pulse);
 
   reg   valid_dly;
@@ -80,9 +80,9 @@ module edge_detector ( input valid_db,
     valid_dly = 0;
   end
 
-  always @ (posedge clk)
+  always @ (posedge clk or negedge reset_n)
   begin
-    if (reset)
+    if (!reset_n)
     begin
       valid_dly <= 0;
     end
@@ -98,7 +98,7 @@ module edge_detector ( input valid_db,
   assign valid_pulse = valid_db & ~valid_dly;
 endmodule
 
-module debouncer(input valid,clk,reset,output valid_db);
+module debouncer(input valid,clk,reset_n,output valid_db);
 `ifdef SIMULATION
 
   assign valid_db = valid;
@@ -121,15 +121,15 @@ module debouncer(input valid,clk,reset,output valid_db);
 
 
   //clock_div u1(clk, reset,slow_clk);
-  clock_divider devo(clk, slow_clk);
-  my_dff d0(slow_clk, valid, reset,Q0 );
+  clock_divider devo(clk, reset_n,slow_clk);
+  my_dff d0(slow_clk, valid, reset_n,Q0 );
 
-  my_dff d1(slow_clk, Q0,reset,Q1 );
-  my_dff d2(slow_clk, Q1,reset,Q2 );
+  my_dff d1(slow_clk, Q0,reset_n,Q1 );
+  my_dff d2(slow_clk, Q1,reset_n,Q2 );
   assign Q2_bar = ~Q2;
-  always @ (posedge clk)
+  always @ (posedge clk or negedge reset_n)
   begin
-    if (reset)
+    if (!reset_n)
     begin
       valid1 <= 0;
     end
@@ -145,7 +145,7 @@ module debouncer(input valid,clk,reset,output valid_db);
 endmodule
 
 // Slow clock for debouncing
-module clock_div(input Clk_1000Hz, reset,output  slow_clk
+module clock_div(input Clk_1000Hz, reset_n,output  slow_clk
 
                   );
   reg [9:0]counter=0;
@@ -157,9 +157,9 @@ module clock_div(input Clk_1000Hz, reset,output  slow_clk
     r_slow_clk=0;
   end
 
-  always @(posedge Clk_1000Hz)
+  always @(posedge Clk_1000Hz or negedge reset_n)
   begin
-    if (reset)
+    if (!reset_n)
     begin
       counter<='h0;
       r_slow_clk<=0;
@@ -178,6 +178,7 @@ endmodule
 
 module clock_divider (
     input clk_in,
+    input reset_n,
     output  clk_out
   );
 
@@ -201,17 +202,27 @@ module clock_divider (
 
 
 
-  always @(posedge clk_in)
+  always @(posedge clk_in or negedge reset_n)
   begin
-    q_reg[0] <= ~q_reg[0];
+    if (!reset_n) begin
+      q_reg[0] <= 'h0;
+    end else begin
+      q_reg[0] <= ~q_reg[0];
+    end
+    
   end
 
   generate
     for (i=0; i<DIV_VAL; i=i+1)
     begin
-      always @(posedge q_reg[i])
+      always @(posedge q_reg[i] or negedge reset_n)
       begin
-        q_reg[i+1] <= ~q_reg[i+1];
+        if (!reset_n) begin
+          q_reg[i+1] <= 'h0;
+        end else begin
+          q_reg[i+1] <= ~q_reg[i+1];
+        end
+        
       end
     end
   endgenerate
@@ -225,7 +236,7 @@ module clock_divider (
 endmodule
 
 // D-flip-flop for debouncing module
-module my_dff(input DFF_CLOCK, D, reset,output  Q);
+module my_dff(input DFF_CLOCK, D, reset_n,output  Q);
 
   reg my_reg;
 
@@ -234,9 +245,9 @@ module my_dff(input DFF_CLOCK, D, reset,output  Q);
     my_reg = 'h0;
   end
 
-  always @ (posedge DFF_CLOCK)
+  always @ (posedge DFF_CLOCK or negedge reset_n)
   begin
-    if (reset)
+    if (!reset_n)
     begin
       my_reg <= 'h0;
     end
