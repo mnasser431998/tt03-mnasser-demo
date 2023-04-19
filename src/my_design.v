@@ -183,7 +183,7 @@ module clock_divider (
   );
 
 
-  parameter DIV_VAL = 8;
+  parameter DIV_VAL = 7;
   reg [DIV_VAL:0] q_reg;
   reg[7:0] k;
 
