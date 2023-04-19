@@ -13,12 +13,12 @@ async def test_dec_1(dut):
     B = 10
     C = A * B
 
-    cocotb.start_soon(Clock(dut.clk, 10, units='ns').start())
+    cocotb.start_soon(Clock(dut.clk, 1000, units='ns').start())
 
     dut.reset.value = 1
     dut.valid.value = 0
     dut.toggle.value = 0
-    await ClockCycles(dut.clk, 5, True)
+    await ClockCycles(dut.clk, 500, True)
     dut.reset.value = 0
 
     dut.din.value = B >> 4
