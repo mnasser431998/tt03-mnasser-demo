@@ -9,7 +9,7 @@ module tb(
   );
 
   initial begin
-    $dumpfile("signals.vcd");
+    $dumpfile("tb.vcd");
     $dumpvars(0, tb);
   end
 
